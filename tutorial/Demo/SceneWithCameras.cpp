@@ -8,10 +8,10 @@
 #include "CamModel.h"
 #include "Visitor.h"
 #include "Utility.h"
-
 #include "imgui.h"
 #include "file_dialog_open.h"
 #include "GLFW/glfw3.h"
+
 
 
 using namespace cg3d;
