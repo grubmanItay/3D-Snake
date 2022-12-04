@@ -35,7 +35,7 @@ public:
     void Reset();
 
     void KeyCallback(Viewport* _viewport, int x, int y, int key, int scancode, int action, int mods) override;
-    void initData();
+    void new_Reset();
     void caculateQMatrix(Eigen::MatrixXd& V, Eigen::MatrixXi& F);
     void caculateCostAndPlacment(int edge, Eigen::MatrixXd& V);
     void Simplification();
