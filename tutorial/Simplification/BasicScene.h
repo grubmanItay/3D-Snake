@@ -54,7 +54,7 @@ public:
 
 private:
     std::shared_ptr<Movable> root;
-    std::shared_ptr<cg3d::Model> cyl, sphere1, cube;
+    std::shared_ptr<cg3d::Model> cyl, sphere1, cube, bunny;
     Eigen::MatrixXi F, OF;
     Eigen::MatrixXd V, OV, VN, T;
     Eigen::VectorXi EQ;

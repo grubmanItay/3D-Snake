@@ -42,12 +42,15 @@ void BasicScene::Init(float fov, int width, int height, float near, float far)
 
 	material->AddTexture(0, "textures/box0.bmp", 2);
 	auto sphereMesh{ IglLoader::MeshFromFiles("sphere_igl", "data/sphere.obj") };
+	auto bunnyMesh{ IglLoader::MeshFromFiles("bunny_igl", "data/bunny.off") };
 
 	sphere1 = Model::Create("sphere", sphereMesh, material);
+	bunny = Model::Create("bunny", bunnyMesh, material);
 
 	//Logs();
 
 	sphere1->showWireframe = true;
+	bunny->showWireframe = true;
 	camera->Translate(30, Axis::Z);
 
 	auto sphere_mesh = sphere1->GetMeshList();
@@ -162,8 +165,8 @@ void BasicScene::caculateQMatrix(Eigen::MatrixXd& V, Eigen::MatrixXi& F) {
 	std::vector<std::vector<int> > VFi;
 	int n = V.rows();
 	Qmatrix.resize(n);
-	igl::vertex_triangle_adjacency(n, F, VF, VFi);
-	Eigen::MatrixXd F_normals = data().F_normals;
+	igl::vertex_triangle_adjacency(n, F, VF, VFi); // VF - gets vetices to faces matrix
+	Eigen::MatrixXd F_normals = data().F_normals; //normals list for each face
 
 
 	for (int i = 0; i < n; i++) {
@@ -204,7 +207,7 @@ void BasicScene::caculateCostAndPlacment(int edge, Eigen::MatrixXd& V)
 		vposition = Qposition * (Eigen::Vector4d(0, 0, 0, 1));
 		cost = vposition.transpose() * Qedge * vposition;
 	}
-	else {
+	else { // check which cost is minimal: v1, v2 or (v1+v2)/2
 		Eigen::Vector4d v1p;
 		v1p << V.row(v1), 1;;
 		double cost1 = v1p.transpose() * Qedge * v1p;
@@ -216,6 +219,7 @@ void BasicScene::caculateCostAndPlacment(int edge, Eigen::MatrixXd& V)
 		Eigen::Vector4d v12p;
 		v12p << ((V.row(v1) + V.row(v2)) / 2), 1;;
 		double cost3 = v12p.transpose() * Qedge * v12p;
+
 		if (cost1 < cost2 && cost1 < cost3) {
 			vposition = v1p;
 			cost = cost1;
@@ -233,8 +237,8 @@ void BasicScene::caculateCostAndPlacment(int edge, Eigen::MatrixXd& V)
 	pos[0] = vposition[0];
 	pos[1] = vposition[1];
 	pos[2] = vposition[2];
-	C.row(edge) = pos;
-	Qit[edge] = newQ.insert(std::pair<double, int>(cost, edge)).first;
+	C.row(edge) = pos; // Position matrix
+	Qit[edge] = newQ.insert(std::pair<double, int>(cost, edge)).first; //newQ is priority queue of <cost,edge>
 }
 
 void BasicScene::Simplification() {
@@ -245,7 +249,7 @@ void BasicScene::Simplification() {
 	V = data().V;
 	F = data().F;
 	bool something_collapsed = false;
-	const int max_iter = std::ceil(0.01 * newQ.size());
+	const int max_iter = std::ceil(0.1 * newQ.size());
 	for (int j = 0; j < max_iter; j++)
 	{
 		if (!new_collapse_edge(V, F)) {
@@ -259,7 +263,6 @@ void BasicScene::Simplification() {
 	{
 		data().set_mesh(V, F);
 		data().set_face_based(true);
-		data().dirty = 157;
 		index++;
 		numOfSimplification++;
 		SetMesh();
@@ -296,8 +299,10 @@ bool BasicScene::new_collapse_edge(Eigen::MatrixXd& V, Eigen::MatrixXi& F) {
 		curr_Q.erase(curr_Qit[e2]);
 		curr_Qit[e2] = curr_Q.end();
 
-		Qmatrix[v1] = Qmatrix[v1] + Qmatrix[v2];
-		Qmatrix[v2] = Qmatrix[v1] + Qmatrix[v2];
+		Eigen::Matrix4d newCost = Qmatrix[v1] + Qmatrix[v2];
+
+		Qmatrix[v1] = newCost;
+		Qmatrix[v2] = newCost;
 
 		Eigen::VectorXd newPosition;
 
@@ -309,7 +314,7 @@ bool BasicScene::new_collapse_edge(Eigen::MatrixXd& V, Eigen::MatrixXi& F) {
 			{
 				for (int v = 0; v < 3; v++)
 				{
-					const  int ei = EMAP(v * F.rows() + n);
+					const int ei = EMAP(v * F.rows() + n);
 					curr_Q.erase(curr_Qit[ei]);
 					caculateCostAndPlacment(ei, V);
 					newPosition = C.row(ei);
