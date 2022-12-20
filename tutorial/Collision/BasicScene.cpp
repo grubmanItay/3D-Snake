@@ -1,4 +1,4 @@
-#include "BasicScene.h"
+#include "Scene.h"
 #include "BasicScene.h"
 #include <read_triangle_mesh.h>
 #include <utility>
@@ -144,13 +144,15 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
 {
     Scene::Update(program, proj, view, model);
 	if (!COLLISION && !isCollision(&tree1, &tree2)) {
-		obj1->Translate({ 0.001f,0.0f,0.0f });
-		cube1->Translate({ 0.001f,0.0f,0.0f });
-		obj2->Translate({ -0.001f,0.0f,0.0f });
-		cube2->Translate({ -0.001f,0.0f,0.0f });
+		obj1->Translate(motion);
+		cube1->Translate(motion);
+		obj2->Translate(-1 * motion);
+		cube2->Translate(-1 * motion);
 	}
 	else {
 		COLLISION = true;
+		obj1->Translate(0*motion);
+		obj2->Translate(0*motion);
 	}
 }
 
@@ -203,7 +205,6 @@ void BasicScene::DrawCubes(Eigen::AlignedBox<double, 3>& box, std::shared_ptr<cg
 }
 
 bool BasicScene::isCollision(igl::AABB<Eigen::MatrixXd, 3>* treeA, igl::AABB<Eigen::MatrixXd, 3>* treeB) {
-	//base cases
 	if (treeA == nullptr || treeB == nullptr)
 		return false;
 	if (!boxesIntersect(treeA->m_box, treeB->m_box)) {
@@ -313,4 +314,30 @@ bool BasicScene::boxesIntersect(Eigen::AlignedBox<double, 3>& boxA, Eigen::Align
 	if (a(0) * abs(C.row(1)(2)) + a(1) * abs(C.row(0)(2)) + b(0) * abs(C.row(2)(1)) + b(1) * abs(C.row(2)(0)) < abs(R))
 		return false;
 	return true;
+}
+
+void BasicScene::KeyCallback(Viewport* _viewport, int x, int y, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS || action == GLFW_REPEAT)
+	{
+		switch (key) // NOLINT(hicpp-multiway-paths-covered)
+		{
+		case GLFW_KEY_UP:
+			motion = { 0.0f,0.001f,0.0f };
+			break;
+		case GLFW_KEY_DOWN:
+			motion = { 0.0f,-0.001f,0.0f };
+			break;
+		case GLFW_KEY_LEFT:
+			motion = { -0.001f,0.0f,0.0f };
+			break;
+		case GLFW_KEY_RIGHT:
+			motion = { 0.001f,0.0f,0.0f };
+			break;
+
+		case GLFW_KEY_SPACE:
+			COLLISION = !COLLISION;
+			break;
+		}
+	}
 }
