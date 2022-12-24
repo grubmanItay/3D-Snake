@@ -65,10 +65,10 @@ void Scene::ScrollCallback(Viewport* viewport, int x, int y, int xoffset, int yo
     // note: there's a (small) chance the button state here precedes the mouse press/release event
     auto system = camera->GetRotation().transpose();
     if (pickedModel) {
-        pickedModel->TranslateInSystem(system, { 0, 0, -float(yoffset) * 0.1f });
+        pickedModel->TranslateInSystem(system, {0, 0, -float(yoffset)});
         pickedToutAtPress = pickedModel->GetTout();
     } else {
-        camera->TranslateInSystem(system, {0, 0, -float(yoffset) * 0.1f });
+        camera->TranslateInSystem(system, {0, 0, -float(yoffset)});
         cameraToutAtPress = camera->GetTout();
     }
 }
@@ -82,23 +82,22 @@ void Scene::CursorPosCallback(Viewport* viewport, int x, int y, bool dragging, i
         if (pickedModel) {
             pickedModel->SetTout(pickedToutAtPress);
             if (buttonState[GLFW_MOUSE_BUTTON_LEFT] != GLFW_RELEASE)
-                pickedModel->TranslateInSystem(system, { float(x - xAtPress) / moveCoeff * 0.8f, float(yAtPress - y) / moveCoeff * 0.8f, 0 });
+                pickedModel->TranslateInSystem(system, {float(x - xAtPress) / moveCoeff, float(yAtPress - y) / moveCoeff, 0});
             if (buttonState[GLFW_MOUSE_BUTTON_MIDDLE] != GLFW_RELEASE)
-                pickedModel->RotateInSystem(system, float(x - xAtPress) / moveCoeff * 0.8f, Axis::Z);
+                pickedModel->RotateInSystem(system, float(x - xAtPress) / moveCoeff, Axis::Z);
             if (buttonState[GLFW_MOUSE_BUTTON_RIGHT] != GLFW_RELEASE) {
-                pickedModel->RotateInSystem(system, float(x - xAtPress) / moveCoeff * 0.8f, Axis::Y);
-                pickedModel->RotateInSystem(system, float(y - yAtPress) / moveCoeff * 0.8f, Axis::X);
+                pickedModel->RotateInSystem(system, float(x - xAtPress) / moveCoeff, Axis::Y);
+                pickedModel->RotateInSystem(system, float(y - yAtPress) / moveCoeff, Axis::X);
             }
-        }
-        else {
+        } else {
             camera->SetTout(cameraToutAtPress);
             if (buttonState[GLFW_MOUSE_BUTTON_LEFT] != GLFW_RELEASE)
-                camera->TranslateInSystem(system, {float(xAtPress - x) / moveCoeff * 0.8f, float(y - yAtPress) / moveCoeff * 0.8f, 0});
+                camera->TranslateInSystem(system, {float(xAtPress - x) / moveCoeff, float(y - yAtPress) / moveCoeff, 0});
             if (buttonState[GLFW_MOUSE_BUTTON_MIDDLE] != GLFW_RELEASE)
-                camera->RotateInSystem(system, float(x - xAtPress) / 180 * 0.8f, Axis::Z);
+                camera->RotateInSystem(system, float(x - xAtPress) / 180, Axis::Z);
             if (buttonState[GLFW_MOUSE_BUTTON_RIGHT] != GLFW_RELEASE) {
-                camera->RotateInSystem(system, float(x - xAtPress) / angleCoeff * 0.8f, Axis::Y);
-                camera->RotateInSystem(system, float(y - yAtPress) / angleCoeff * 0.8f, Axis::X);
+                camera->RotateInSystem(system, float(x - xAtPress) / angleCoeff, Axis::Y);
+                camera->RotateInSystem(system, float(y - yAtPress) / angleCoeff, Axis::X);
             }
         }
     }

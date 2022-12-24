@@ -8,10 +8,10 @@
 #include "CamModel.h"
 #include "Visitor.h"
 #include "Utility.h"
+
 #include "imgui.h"
 #include "file_dialog_open.h"
 #include "GLFW/glfw3.h"
-
 
 
 using namespace cg3d;
@@ -165,7 +165,7 @@ void SceneWithCameras::Init(float fov, int width, int height, float near, float 
 
     auto morphFunc = [](Model* model, cg3d::Visitor* visitor) {
         static float prevDistance = -1;
-        float distance = (visitor->view * visitor->norm * model->aggregatedTransform).norm();
+        float distance = (visitor->view * visitor->norm * model->GetAggregatedTransform()).norm();
         if (prevDistance != distance)
             debug(model->name, " distance from camera: ", prevDistance = distance);
         return distance > 3 ? 1 : 0;
