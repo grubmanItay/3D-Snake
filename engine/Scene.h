@@ -53,6 +53,10 @@ protected:
     int xAtPress = -1, yAtPress = -1;
     float pickedModelDepth = 0;
     Eigen::Affine3f pickedToutAtPress, cameraToutAtPress;
+
+// For IK animation
+public:
+    bool animate = false;
 };
 
 } // namespace cg3d

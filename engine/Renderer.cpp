@@ -46,6 +46,9 @@ void Renderer::RenderAllViewports()
 {
     defaultVisitor.Init();
 
+    // For IK animation
+    viewports[0]->scene->animate = true;
+
     for (auto& viewport: viewports)
         RenderViewport(viewport.get());
 }
