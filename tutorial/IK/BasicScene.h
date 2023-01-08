@@ -17,13 +17,13 @@ public:
     void KeyCallback(cg3d::Viewport* viewport, int x, int y, int key, int scancode, int action, int mods) override;
     Eigen::Vector3f GetSpherePos();
 
-    Eigen::Vector3f GetDestinationPosition();
-    Eigen::Vector3f GetLinkTipPosition(int link_id);
-    Eigen::Vector3f GetLinkSourcePosition(int link_id);
+    Eigen::Vector3f GetDestinationPos();
+    Eigen::Vector3f GetTipPos(int link_id);
+    Eigen::Vector3f GetSourcePos(int link_id);
     std::vector<Eigen::Matrix3f> GetEulerAnglesMatrices(Eigen::Matrix3f R);
 
-    void IKCyclicCoordinateDecentMethod();
-    void IKSolverHelper(int link_id, Eigen::Vector3f D);
+    void CyclicCoordinateDecentMethod();
+    void SolverHelper(int link_id, Eigen::Vector3f D);
 
     void KeySpaceEvent();
     void KeyPEvent();
