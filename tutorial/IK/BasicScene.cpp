@@ -51,9 +51,7 @@ void BasicScene::Init(float fov, int width, int height, float near, float far){
     material->AddTexture(0, "textures/box0.bmp", 2);
     auto sphereMesh{IglLoader::MeshFromFiles("sphere_igl", "data/sphere.obj")};
     auto cylMesh{IglLoader::MeshFromFiles("cyl_igl","data/zcylinder.obj")};
-    auto cubeMesh{IglLoader::MeshFromFiles("cube_igl","data/cube_old.obj")};
     sphere1 = Model::Create("sphere",sphereMesh, material);    
-    cube = Model::Create("cube", cubeMesh, material);
     
     Eigen::MatrixXd vertices(6,3);
     vertices << -1,0,0,1,0,0,0,-1,0,0,1,0,0,0,-1,0,0,1;
@@ -92,19 +90,12 @@ void BasicScene::Init(float fov, int width, int height, float near, float far){
     auto morphFunc = [](Model* model, cg3d::Visitor* visitor) {
       return model->meshIndex; 
     };
-    autoCube = AutoMorphingModel::Create(*cube, morphFunc);
   
     sphere1->showWireframe = true;
-    autoCube->Translate({-6,0,0});
-    autoCube->Scale(1.5f);
     sphere1->Translate({5,0,0});
-
-    autoCube->showWireframe = true;
     camera->Translate(22, Axis::Z);
     root->AddChild(sphere1);
-    root->AddChild(autoCube);
-    cube->mode = 1; 
-    auto mesh = cube->GetMeshList();
+    auto mesh = sphere1->GetMeshList();
 
     int num_collapsed;
 
@@ -119,7 +110,6 @@ void BasicScene::Init(float fov, int width, int height, float near, float far){
     std::cout<< "faces to edges: \n "<< EMAP.transpose()<<std::endl;
     std::cout<< "edges indices: \n" << EI.transpose() <<std::endl;
 
-    autoCube->Translate({ 0,0,0 });
     sphere1->Translate({ 0,0,0 });
 }
 
@@ -130,7 +120,6 @@ void BasicScene::Update(const Program& program, const Eigen::Matrix4f& proj, con
     program.SetUniform4f("Kdi", 0.5f, 0.5f, 0.0f, 1.0f);
     program.SetUniform1f("specular_exponent", 5.0f);
     program.SetUniform4f("light_position", 0.0, 15.0f, 0.0, 1.0f);
-    cube->Rotate(0.1f, Axis::XYZ);
 
     CyclicCoordinateDecentMethod();
 }
@@ -161,15 +150,15 @@ void BasicScene::MouseCallback(Viewport* viewport, int x, int y, int button, int
 void BasicScene::ScrollCallback(Viewport* viewport, int x, int y, int xoffset, int yoffset, bool dragging, int buttonState[]){
     auto system = camera->GetRotation().transpose();
     if (pickedModel) {
-        bool arm_selected = false;
-        for (int i = 0; i < num_of_links && !arm_selected; i++) {
+        bool SELECTED = false;
+        for (int i = 0; i < num_of_links && !SELECTED; i++) {
             if (pickedModel == cyls[i]) {
                 cyls[first_link_id]->TranslateInSystem(system * cyls[first_link_id]->GetRotation(), { 0, 0, -float(yoffset) });
                 pickedToutAtPress = pickedModel->GetTout();
-                arm_selected = true;
+                SELECTED = true;
             }
         }
-        if (!arm_selected) {
+        if (!SELECTED) {
             pickedModel->TranslateInSystem(system * pickedModel->GetRotation(), { 0, 0, -float(yoffset) });
             pickedToutAtPress = pickedModel->GetTout();
         }
@@ -187,41 +176,41 @@ void BasicScene::CursorPosCallback(Viewport* viewport, int x, int y, bool draggi
         auto angleCoeff = camera->CalcAngleCoeff(viewport->width);
         if (pickedModel) {
             if (buttonState[GLFW_MOUSE_BUTTON_RIGHT] != GLFW_RELEASE) {
-                bool arm_selected = false;
-                for (int i = 0; i < num_of_links && !arm_selected; i++) {
+                bool SELECTED = false;
+                for (int i = 0; i < num_of_links && !SELECTED; i++) {
                     if (pickedModel == cyls[i]) {
                         cyls[first_link_id]->TranslateInSystem(system * cyls[first_link_id]->GetRotation(), { -float(xAtPress - x) / moveCoeff, float(yAtPress - y) / moveCoeff, 0 });
-                        arm_selected = true;
+                        SELECTED = true;
                     }
                 }
-                if (!arm_selected) {
+                if (!SELECTED) {
                     pickedModel->TranslateInSystem(system * pickedModel->GetRotation(), { -float(xAtPress - x) / moveCoeff, float(yAtPress - y) / moveCoeff, 0 });
                 }
             }
             if (buttonState[GLFW_MOUSE_BUTTON_MIDDLE] != GLFW_RELEASE)
                 pickedModel->RotateInSystem(system, float(xAtPress - x) / angleCoeff, Axis::Z);
             if (buttonState[GLFW_MOUSE_BUTTON_LEFT] != GLFW_RELEASE) {
-                bool arm_selected = false;
-                for (int i = 0; i < num_of_links && !arm_selected; i++) {
+                bool SELECTED = false;
+                for (int i = 0; i < num_of_links && !SELECTED; i++) {
                     if (pickedModel == cyls[i]) {
                         Eigen::Matrix3f R = pickedModel->GetRotation();
-                        Eigen::Matrix3f R_without_root = root->GetRotation().transpose() * R;
-                        Eigen::Vector3f euler_angles = R_without_root.eulerAngles(2, 0, 2);
+                        Eigen::Matrix3f removeRoot = root->GetRotation().transpose() * R;
+                        Eigen::Vector3f angles = removeRoot.eulerAngles(2, 0, 2);
 
                         float z_angle = -float(xAtPress - x) / angleCoeff;
                         float x_angle = float(yAtPress - y) / angleCoeff;
 
-                        Eigen::AngleAxisf phi(euler_angles[0] + z_angle, Eigen::Vector3f::UnitZ());
-                        Eigen::AngleAxisf theta(euler_angles[1] + x_angle, Eigen::Vector3f::UnitX());
-                        Eigen::AngleAxisf psi(euler_angles[2], Eigen::Vector3f::UnitZ());
+                        Eigen::AngleAxisf phi(angles[0] + z_angle, Eigen::Vector3f::UnitZ());
+                        Eigen::AngleAxisf theta(angles[1] + x_angle, Eigen::Vector3f::UnitX());
+                        Eigen::AngleAxisf psi(angles[2], Eigen::Vector3f::UnitZ());
 
-                        Eigen::Matrix3f R_new = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
-                        pickedModel->Rotate(R.transpose() * R_new);
+                        Eigen::Matrix3f newR = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
+                        pickedModel->Rotate(R.transpose() * newR);
 
-                        arm_selected = true;
+                        SELECTED = true;
                     }
                 }
-                if (!arm_selected) {
+                if (!SELECTED) {
                     pickedModel->RotateInSystem(system * pickedModel->GetRotation(), -float(xAtPress - x) / angleCoeff, Axis::Y);
                     pickedModel->RotateInSystem(system * pickedModel->GetRotation(), -float(yAtPress - y) / angleCoeff, Axis::X);
                 }
@@ -443,24 +432,6 @@ void BasicScene::CyclicCoordinateDecentMethod() {
     }
 }
 
-void BasicScene::SolverHelper(int link_id, Eigen::Vector3f D) {
-    Eigen::Vector3f R = GetSourcePos(link_id);
-    Eigen::Vector3f E = GetTipPos(link_id);
-    Eigen::Vector3f RD = D - R;
-    Eigen::Vector3f RE = E - R;
-
-    Eigen::Vector3f normal = RE.normalized().cross(RD.normalized());
-
-    float dot = RD.normalized().dot(RE.normalized()); 
-
-    if (dot > 1) dot = 1;
-    if (dot < -1) dot = 1;
-
-    float angle = (acos(dot) * (180.f / 3.14f)) / angle_divider;
-    Eigen::Vector3f rotation_vector = cyls[link_id]->GetAggregatedTransform().block<3, 3>(0, 0).inverse() * normal;
-    cyls[link_id]->RotateByDegree(angle, rotation_vector);
-}
-
 void BasicScene::KeySpaceEvent()
 {
     if (IK_mode == 0) {
@@ -575,24 +546,23 @@ void BasicScene::KeyEqualEvent()
     Reset(x);
 }
 
-void BasicScene::KeyRightEvent()
-{
+void BasicScene::KeyRightEvent(){
     auto system = camera->GetRotation().transpose();
 
     bool SELECTED = false;
     for (int i = 0; i < num_of_links && !SELECTED; i++) {
         if (pickedModel == cyls[i]) {
             Eigen::Matrix3f R = pickedModel->GetRotation();
-            std::vector<Eigen::Matrix3f> matrices = GetEulerAnglesMatrices(R);
+            Eigen::Matrix3f removeRoot = root->GetRotation().transpose() * R;
+            Eigen::Vector3f angles = removeRoot.eulerAngles(2, 0, 2);
 
             float angle = 0.1f;
-            Eigen::Matrix3f z;
-            z.row(0) = Eigen::Vector3f(cos(angle), -sin(angle), 0);
-            z.row(1) = Eigen::Vector3f(sin(angle), cos(angle), 0);
-            z.row(2) = Eigen::Vector3f(0, 0, 1);
+            Eigen::AngleAxisf phi(angles[0] + angle, Eigen::Vector3f::UnitZ());
+            Eigen::AngleAxisf theta(angles[1], Eigen::Vector3f::UnitX());
+            Eigen::AngleAxisf psi(angles[2], Eigen::Vector3f::UnitZ());
 
-            Eigen::Matrix3f newR = matrices[0] * matrices[1] * matrices[2] * z;
-            pickedModel->Rotate(R.inverse() * newR);
+            Eigen::Matrix3f newR = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
+            pickedModel->Rotate(R.transpose() * newR);
 
             SELECTED = true;
         }
@@ -602,24 +572,23 @@ void BasicScene::KeyRightEvent()
     }
 }
 
-void BasicScene::KeyLeftEvent()
-{
+void BasicScene::KeyLeftEvent(){
     auto system = camera->GetRotation().transpose();
 
     bool SELECTED = false;
     for (int i = 0; i < num_of_links && !SELECTED; i++) {
         if (pickedModel == cyls[i]) {
             Eigen::Matrix3f R = pickedModel->GetRotation();
-            std::vector<Eigen::Matrix3f> matrices = GetEulerAnglesMatrices(R);
+            Eigen::Matrix3f removeRoot = root->GetRotation().transpose() * R;
+            Eigen::Vector3f angles = removeRoot.eulerAngles(2, 0, 2);
 
             float angle = -0.1f;
-            Eigen::Matrix3f z;
-            z.row(0) = Eigen::Vector3f(cos(angle), -sin(angle), 0);
-            z.row(1) = Eigen::Vector3f(sin(angle), cos(angle), 0);
-            z.row(2) = Eigen::Vector3f(0, 0, 1);
+            Eigen::AngleAxisf phi(angles[0] + angle, Eigen::Vector3f::UnitZ());
+            Eigen::AngleAxisf theta(angles[1], Eigen::Vector3f::UnitX());
+            Eigen::AngleAxisf psi(angles[2], Eigen::Vector3f::UnitZ());
 
-            Eigen::Matrix3f newR = matrices[0] * matrices[1] * matrices[2] * z;
-            pickedModel->Rotate(R.inverse() * newR);
+            Eigen::Matrix3f newR = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
+            pickedModel->Rotate(R.transpose() * newR);
 
             SELECTED = true;
         }
@@ -629,24 +598,23 @@ void BasicScene::KeyLeftEvent()
     }
 }
 
-void BasicScene::KeyUpEvent()
-{
+void BasicScene::KeyUpEvent(){
     auto system = camera->GetRotation().transpose();
 
     bool SELECTED = false;
     for (int i = 0; i < num_of_links && !SELECTED; i++) {
         if (pickedModel == cyls[i]) {
             Eigen::Matrix3f R = pickedModel->GetRotation();
-            std::vector<Eigen::Matrix3f> matrices = GetEulerAnglesMatrices(R);
+            Eigen::Matrix3f removeRoot = root->GetRotation().transpose() * R;
+            Eigen::Vector3f angles = removeRoot.eulerAngles(2, 0, 2);
 
             float angle = 0.1f;
-            Eigen::Matrix3f x;
-            x.row(0) = Eigen::Vector3f(1, 0, 0);
-            x.row(1) = Eigen::Vector3f(0, cos(angle), -sin(angle));
-            x.row(2) = Eigen::Vector3f(0, sin(angle), cos(angle));
+            Eigen::AngleAxisf phi(angles[0], Eigen::Vector3f::UnitZ());
+            Eigen::AngleAxisf theta(angles[1] + angle, Eigen::Vector3f::UnitX());
+            Eigen::AngleAxisf psi(angles[2], Eigen::Vector3f::UnitZ());
 
-            Eigen::Matrix3f newR = matrices[0] * matrices[1] * x * matrices[2];
-            pickedModel->Rotate(R.inverse() * newR);
+            Eigen::Matrix3f newR = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
+            pickedModel->Rotate(R.transpose() * newR);
 
             SELECTED = true;
         }
@@ -656,24 +624,23 @@ void BasicScene::KeyUpEvent()
     }
 }
 
-void BasicScene::KeyDownEvent()
-{
+void BasicScene::KeyDownEvent(){
     auto system = camera->GetRotation().transpose();
 
     bool SELECTED = false;
     for (int i = 0; i < num_of_links && !SELECTED; i++) {
         if (pickedModel == cyls[i]) {
             Eigen::Matrix3f R = pickedModel->GetRotation();
-            std::vector<Eigen::Matrix3f> matrices = GetEulerAnglesMatrices(R);
+            Eigen::Matrix3f removeRoot = root->GetRotation().transpose() * R;
+            Eigen::Vector3f angles = removeRoot.eulerAngles(2, 0, 2);
 
             float angle = -0.1f;
-            Eigen::Matrix3f x;
-            x.row(0) = Eigen::Vector3f(1, 0, 0);
-            x.row(1) = Eigen::Vector3f(0, cos(angle), -sin(angle));
-            x.row(2) = Eigen::Vector3f(0, sin(angle), cos(angle));
+            Eigen::AngleAxisf phi(angles[0], Eigen::Vector3f::UnitZ());
+            Eigen::AngleAxisf theta(angles[1] + angle, Eigen::Vector3f::UnitX());
+            Eigen::AngleAxisf psi(angles[2], Eigen::Vector3f::UnitZ());
 
-            Eigen::Matrix3f newR = matrices[0] * matrices[1] * x * matrices[2];
-            pickedModel->Rotate(R.inverse() * newR);
+            Eigen::Matrix3f newR = root->GetRotation() * Eigen::Quaternionf(phi * theta * psi).toRotationMatrix();
+            pickedModel->Rotate(R.transpose() * newR);
 
             SELECTED = true;
         }

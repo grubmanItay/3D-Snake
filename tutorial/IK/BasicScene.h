@@ -23,7 +23,6 @@ public:
     std::vector<Eigen::Matrix3f> GetEulerAnglesMatrices(Eigen::Matrix3f R);
 
     void CyclicCoordinateDecentMethod();
-    void SolverHelper(int link_id, Eigen::Vector3f D);
 
     void KeySpaceEvent();
     void KeyPEvent();
@@ -41,8 +40,7 @@ public:
 
 private:
     std::shared_ptr<Movable> root;
-    std::shared_ptr<cg3d::Model> sphere1 ,cube;
-    std::shared_ptr<cg3d::AutoMorphingModel> autoCube;
+    std::shared_ptr<cg3d::Model> sphere1;
     std::vector<std::shared_ptr<cg3d::Model>> cyls, axis;
     int pickedIndex = 0;
     int tipIndex = 0;
