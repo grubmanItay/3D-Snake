@@ -390,7 +390,7 @@ std::vector<Eigen::Matrix3f> BasicScene::GetEulerAnglesMatrices(Eigen::Matrix3f 
 }
 
 void BasicScene::CyclicCoordinateDecentMethod() {
-    if (PlayPause && animate) {
+    if (PlayPause /*&& animate*/) {
         Eigen::Vector3f D = GetDestinationPos();
         Eigen::Vector3f first_link_position = GetSourcePos(first_link_id);
 
@@ -428,7 +428,7 @@ void BasicScene::CyclicCoordinateDecentMethod() {
 
             curr_link--;
         }
-        animate = false;
+        //animate = false;
     }
 }
 
