@@ -1,0 +1,44 @@
+Implement:
+
+- Fabrik movement
+- Menu V
+- Score V
+- Levels V
+- Pick-Up Items V
+- Skinning - Dual quaternion - libigl 404
+- Snake Joints
+- Game loop manager V
+- key callbacks V?
+
+ = Additional (extra points - at least 2)
+
+- Sound?
+- UI V
+- Self Collision?
+- Texture?
+
+==temps
+- basic movement for testing V?
+
+Integrate:
+
+- collision detection from assignment 2 V
+- IK get position from Ass3 for fabrik
+- snake integrity while moving it like in Ass3?
+
+
+Test:
+
+- movement at all axis
+- camera positions
+- pickups interaction
+- collisions on all axis systems
+
+Improve:
+
+- looks of snake head 
+- camera positioning
+- remove extras from camera scene - callbacks updates and such V
+
+Docs:
+- readme including what we did , difficulties and what extras we chose

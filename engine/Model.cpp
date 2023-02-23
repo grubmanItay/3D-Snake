@@ -79,11 +79,12 @@ void Model::UpdateDataAndDrawMeshes(const Program& program, bool _showFaces, boo
         if (bindTextures) material->BindTextures();
         if (mode == 0)
             viewerData.meshgl.draw_mesh(_showFaces);
-        else
-            viewerData.meshgl.draw_lines();
-        // viewerData.meshgl.bind_overlay_points();
-        // viewerData.meshgl.draw_overlay_points();
-        // viewerData.meshgl.bind_overlay_lines();
+        else{
+        viewerData.meshgl.bind_overlay_lines();
+        viewerData.meshgl.draw_lines();
+        viewerData.meshgl.bind_overlay_points();
+        viewerData.meshgl.draw_overlay_points();
+        }
     }
 }
 

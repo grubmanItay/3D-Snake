@@ -143,6 +143,9 @@ void Scene::KeyCallback(Viewport* viewport, int x, int y, int key, int scancode,
             case GLFW_KEY_F:
                 camera->TranslateInSystem(system, {0, 0, -0.05f});
                 break;
+            case GLFW_KEY_SPACE:
+                debug_print("Space");
+                break;
         }
     }
 }

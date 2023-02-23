@@ -7,6 +7,9 @@
   in vec3 normal_eye;
   uniform vec4 light_position;
   uniform vec4 lightColor;
+  //in vec4 Ksi;
+  //in vec4 Kdi;
+  //in vec4 Kai;
   in vec4 Ksi;
   uniform vec4 Kdi;
   uniform vec4 Kai;
@@ -16,7 +19,7 @@
   //uniform float lighting_factor;
   //uniform float texture_factor;
   //out vec4 outColor;
-out vec4 Color;
+  out vec4 Color;
   void main()
   {
     vec3 Ls = vec3(lightColor);

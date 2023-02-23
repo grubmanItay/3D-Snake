@@ -119,6 +119,7 @@ void Display::LaunchRendering(bool loop) const
 
     // Main rendering loop
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
+    glfwSetWindowTitle(window, name.c_str());
 
     while (!glfwWindowShouldClose(window)) {
         double tic = igl::get_seconds();
@@ -243,9 +244,6 @@ void APIENTRY DebugMessageCallback(GLenum source, GLenum type, unsigned int id, 
 
     std::cerr << std::endl;
 
-//#if !defined(NDEBUG) && defined(_MSC_VER)
-//    __debugbreak();
-//#endif
 }
 
 void Display::SetupDebugCallback()

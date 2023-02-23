@@ -36,4 +36,6 @@ add_subdirectory(Collision)
 
 add_subdirectory(IK)
 
+add_subdirectory(Snake3D)
 
+add_subdirectory(finalProject)

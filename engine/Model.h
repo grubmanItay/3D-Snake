@@ -48,12 +48,12 @@ public:
     void SetMeshList(std::vector<std::shared_ptr<Mesh>> _meshList);
     void UpdateDataAndDrawMeshes(const Program& program, bool _showFaces, bool bindTextures); // helper function
     void AddOverlay(const OverlayData& data, bool drawPoints);
+    std::vector<std::vector<igl::opengl::ViewerData>> viewerDataListPerMesh;
 private:
     static void UpdateDataAndBindMesh(igl::opengl::ViewerData& viewerData, const Program& program); // helper function
 
     static std::vector<igl::opengl::ViewerData> CreateViewerData(const std::shared_ptr<Mesh>& mesh);
     std::vector<std::shared_ptr<Mesh>> meshList;
-    std::vector<std::vector<igl::opengl::ViewerData>> viewerDataListPerMesh;
 
     // TODO: TAL: handle the colors...
     Eigen::RowVector4f ambient = Eigen::RowVector4f(1.0, 1.0, 1.0, 1.0);

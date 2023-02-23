@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Visitor.h"
 #include "Eigen/Geometry"
+#include "Utility.h"
 
 class Visitor;
 

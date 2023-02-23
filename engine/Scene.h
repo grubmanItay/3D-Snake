@@ -47,8 +47,10 @@ public:
     virtual void CharCallback(Viewport* viewport, int x, int y, unsigned int codepoint);
     virtual void ViewportSizeCallback(Viewport* viewport);
     virtual void AddViewportCallback(Viewport* viewport) {};
+    inline bool IsActive(){return animate;}
 
 protected:
+    bool animate = false;
     Renderer* renderer; // required for picking
     int xAtPress = -1, yAtPress = -1;
     float pickedModelDepth = 0;
