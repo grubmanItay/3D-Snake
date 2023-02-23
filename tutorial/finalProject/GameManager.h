@@ -24,13 +24,13 @@ namespace Game{
             void GameStart();
             void GameEnd();
             bool GetisStarted() { return isStarted; }
-            void NextWave();
+            void Nextlevel();
             void Restart();
             void IncreaseScore(float amount);
             void DecreaseScore(float amount);
             float GetHighScore();
             float GetScore();
-            int GetCurrWave();            
+            int GetCurrlevel();            
             void SetHighScore(float amount);
 
             SpawnManager* spawnManager;
@@ -38,12 +38,12 @@ namespace Game{
             std::vector<std::shared_ptr<Game::GameObject>> gameObjects;
             std::shared_ptr<Snake> snake;
             SnakeGame* scene;
-            bool shouldSpawnNextWave;
+            bool shouldSpawnNextlevel;
 
         private:
 
             float score;
-            int currWave;
+            int currlevel;
             float highScore;
             bool isStarted = false;
             

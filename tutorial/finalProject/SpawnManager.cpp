@@ -35,24 +35,18 @@ void SpawnManager::InitAssets(){
     healthMesh = Mesh::Cube(); //IglLoader::MeshFromFiles("cylMesh", "data/xcylinder.obj");
 }
 
-void SpawnManager::SpawnWave(int wave){
-    // set amount of each spawns according to wave num
+void SpawnManager::Spawnlevel(int level){
+    // set amount of each spawns according to level num
     this->activePickups = 0;
-    int pickups = wave + 1;
-    int obstacles = wave ;
-    int health = wave %2 == 1 ? 1 : 0; // every odd level
+    int pickups = level + 1;
+    int obstacles = level == 1 ? 2 : 1;
+    int health = level %2 == 1 ? 1 : 0; // every odd level
 
-    //TEMP - FOR DEBUG
-    // pickups = 0;
-    // obstacles = 0 ;
-    // health =  0; // every odd level
-    SpawnWave(pickups, obstacles, health);
-    //set speed of movemnt maybe?
-    //log this
+    Spawnlevel(pickups, obstacles, health);
     Util::DebugPrint("Manager Spawning...");
 
 }
-void SpawnManager::SpawnWave(int pickups, int obstacles, int health)
+void SpawnManager::Spawnlevel(int pickups, int obstacles, int health)
 {
     for(int i = 0; i<pickups; i++){
         SpawnPickupRandom(PICKUP);
@@ -67,14 +61,15 @@ void SpawnManager::SpawnWave(int pickups, int obstacles, int health)
 
 void SpawnManager::PickupDestroyed(MovingObject* interactable)
 {
-    activePickups = activePickups-1>=0 ? activePickups-1 : 0;
-    // remove from interactables list
-    //  scene->RemoveInteractable(interactable);
-    if(activePickups==0){
-        Util::DebugPrint("Spawn Manager detected no more pickups, alerting Game Manager");
-        scene->gameManager->shouldSpawnNextWave=true;
-    }
+    if (!interactable->name.starts_with("Obstacle"))
+        activePickups = activePickups - 1 >= 0 ? activePickups - 1 : 0;
+    //scene->RemoveInteractable(interactable);
 
+    if (activePickups == 0) {
+        Util::DebugPrint("Spawn Manager detected no more pickups, alerting Game Manager");
+        scene->gameManager->shouldSpawnNextlevel = true;
+        scene->gameManager->soundManager->PlayNextLevel();
+    }
 }
 
 std::shared_ptr<cg3d::Model> SpawnManager::CreatePickupModel()

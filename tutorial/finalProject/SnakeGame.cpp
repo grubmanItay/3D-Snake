@@ -147,22 +147,43 @@ void SnakeGame::BuildImGui()
 
         //Score Text
         ImGui::Text("High Score: %f", gameManager->GetHighScore());
-        if(!snake->isAlive)
+        if (!snake->isAlive) {
             ImGui::Text("Game Over, Play Again?");
-        if (ImGui::Button("Play")){
-            gameManager->GameStart();
         }
+
+        if (ImGui::Button(!gameManager->GetisStarted() ? "Play":"Restart")) {
+            if (!gameManager->GetisStarted()) {
+                gameManager->GameStart();
+            }
+            else
+            {
+                float HS = gameManager->GetHighScore();
+                RestartScene();
+                gameManager->Restart();
+                gameManager->SetHighScore(HS);
+            }
+        }
+
+        
         ImGui::SameLine();
-        if(gameManager->shouldSpawnNextWave){
-            if(ImGui::Button("Next Wave")){
-                gameManager->NextWave();
+        if(gameManager->shouldSpawnNextlevel){
+            if(ImGui::Button("Next level")){
+                gameManager->Nextlevel();
+            }
+            else {
+                SetActive(false);
+                int lvl = gameManager->GetCurrlevel();
+                ImGui::Text("Well Done! You have completed level %d", lvl);
             }
         }
         if(IsActive()){
-            ImGui::Text("Current Wave: %d", gameManager->GetCurrWave());
+            ImGui::Text("Current level: %d", gameManager->GetCurrlevel());
             ImGui::Text("Health: %f", snake->currHealth);
             ImGui::Text("Score %f", gameManager->GetScore());
-        }   
+        }
+        else if (gameManager->GetisStarted()) {
+            ImGui::Text("Paused");
+        }
 
         ImGui::End();
     }
@@ -435,13 +456,13 @@ void SnakeGame::InitBackground(){
     if (background != NULL)
         RemoveChild(background);
 
-    int wave = gameManager->GetCurrWave();
+    int level = gameManager->GetCurrlevel();
     std::string bgName;
-    if (wave <= 1) { bgName = "Earth"; }
-    else if (wave == 2) { bgName = "Bridge"; }
-    else if (wave == 3) { bgName = "Tenerife"; }
-    else if (wave == 4) { bgName = "Vindelalven"; }
-    else if (wave == 5) { bgName = "Daylight Box"; }
+    if (level <= 1) { bgName = "Earth"; }
+    else if (level == 2) { bgName = "Bridge"; }
+    else if (level == 3) { bgName = "Tenerife"; }
+    else if (level == 4) { bgName = "Vindelalven"; }
+    else if (level == 5) { bgName = "Daylight Box"; }
 
     auto bgCube{std::make_shared<Material>(bgName, "shaders/cubemapShader")};
     bgCube->AddTexture(0, "textures/cubemaps/" + bgName + "_", 3);
@@ -604,8 +625,9 @@ void SnakeGame::KeyCallback(Viewport* _viewport, int x, int y, int key, int scan
                 gameManager->SetHighScore(HS);
             }
 
-            if (!gameManager->GetisStarted())
+            if (!gameManager->GetisStarted()) {
                 gameManager->GameStart();
+            }
             
 			StopMotion();
         }

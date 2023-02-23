@@ -30,6 +30,11 @@ void SoundManager::PlayGameSound()
 {
     engine->play2D("C:\\Users\\grubm\\OneDrive\\Desktop\\Itay\\School\\3D\\Animation\\build\\Sounds\\game.wav",true);
 }
+void SoundManager::PlayNextLevel()
+{
+    engine->stopAllSounds();
+    engine->play2D("C:\\Users\\grubm\\OneDrive\\Desktop\\Itay\\School\\3D\\Animation\\build\\Sounds\\nextLevel.wav");
+}
 void SoundManager::PlayGameEndSound()
 {
     engine->stopAllSounds();

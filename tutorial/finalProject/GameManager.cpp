@@ -13,7 +13,7 @@ namespace Game{
     {
         this->soundManager = soundManager;
         this->spawnManager = spawnManager;
-        shouldSpawnNextWave = false;
+        shouldSpawnNextlevel = false;
         this->scene = spawnManager->scene;
         SetHighScore(0);
         InitValues();
@@ -23,7 +23,7 @@ namespace Game{
     void GameManager::InitValues()
     {
         SetScore(0);
-        currWave=0;
+        currlevel=0;
     }
 
     void GameManager::GameStart()
@@ -34,10 +34,8 @@ namespace Game{
         scene->SetActive();
         isStarted = true;
         scene->snake->InitGameValues();  
-        // signal wave manager
-        NextWave();
-        soundManager->PlayGameSound();
-        //log this
+        // signal level manager
+        Nextlevel();
     }
 
     void GameManager::GameEnd()
@@ -47,43 +45,44 @@ namespace Game{
         Util::DebugPrint("Score is: " + std::to_string(score));
         // see score and high score
         scene->SetActive(false);
+        shouldSpawnNextlevel = false;
         isStarted = false;
 
-        if (currWave == 6)
+        if (currlevel == 6)
             soundManager->PlayGameWinnerSound();
         else
             soundManager->PlayGameEndSound();
     }
 
-    void GameManager::NextWave()
+    void GameManager::Nextlevel()
     {
-        currWave++;
+        soundManager->PlayGameSound();
+        currlevel++;
         scene->InitBackground();
-        //TEMP change to last wave number
-        if(currWave == 6){
+        scene->SetActive(true);
+        //TEMP change to last level number
+        if(currlevel == 6){
             Util::DebugPrint("Congratulations! you have reached the end!");
             GameEnd();
         }
         else{
-            Util::DebugPrint("Wave Started: " + std::to_string(GetCurrWave()));
-            spawnManager->SpawnWave(GetCurrWave());
+            Util::DebugPrint("level Started: " + std::to_string(GetCurrlevel()));
+            spawnManager->Spawnlevel(GetCurrlevel());
         }
-        shouldSpawnNextWave=false;
-        // signal wave manager?
+        shouldSpawnNextlevel=false;
+        // signal level manager?
     }
 
     void GameManager::Restart()
     {
-        // end game
-        GameEnd();
-        // init values
+        if (scene->IsActive())
+            GameEnd();
         InitValues();
         scene->SetActive();
         isStarted = true;
         scene->snake->InitGameValues();
-        // signal wave manager
-        NextWave();
-        soundManager->PlayGameSound();
+        Nextlevel();
+        
     }
 
     void GameManager::IncreaseScore(float amount)
@@ -109,9 +108,9 @@ namespace Game{
         return score;
     }
 
-    int GameManager::GetCurrWave()
+    int GameManager::GetCurrlevel()
     {
-        return currWave;
+        return currlevel;
     }
 
     void GameManager::SetHighScore(float amount)

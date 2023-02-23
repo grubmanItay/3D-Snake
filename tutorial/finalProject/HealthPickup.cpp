@@ -6,7 +6,6 @@
 #include "Util.h"
 #include "SoundManager.h"
 
-
 #define HEALTH_CYCLES 50
 
 namespace Game{

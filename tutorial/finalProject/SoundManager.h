@@ -19,6 +19,7 @@ public:
     void PlayPickupSound();
     void PlayHealthSound();
     void PlayGameSound();
+    void PlayNextLevel();
     void PlayGameEndSound();
     void PlayGameWinnerSound();
 

@@ -59,7 +59,7 @@ namespace Game {
 
     void Game::Pickup::Update()
     {
-        SetSpeed(scene->gameManager->GetCurrWave() * 1.5f);
+        SetSpeed(scene->gameManager->GetCurrlevel() * 1.5f);
         if (AdvanceTime()) {
             // proceed to check collisions with other objects
             for (int i = 0; i < scene->gameManager->gameObjects.size(); i++) {
