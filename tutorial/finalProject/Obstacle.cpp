@@ -41,13 +41,10 @@ Obstacle* Game::Obstacle::SpawnObject(float xCoordinate, float yCoordinate, floa
 }
 
 void Game::Obstacle::RunAction() {
-    // hide
     model->isHidden = true;
-    //kill and timeout
+    model->Scale(Eigen::Vector3f({ 0.0001f, 0.0001f, 0.0001f }));
     permaGone = true;
     SetTimeOut();
-    // update health
-    //tell snake its colliding
     scene->gameManager->snake->GetHit(damage);
     scene->gameManager->spawnManager->PickupDestroyed(this);
     

@@ -115,34 +115,24 @@ std::shared_ptr<Snake> Snake::CreateSnake(std::shared_ptr<cg3d::Material> progra
 
 void Snake::InitSnake(){
    
-    // float scaleFactor = 1;
     float scaleFactor = 0.3f;
     linkLen = 0.8f*scaleFactor;
-    //add head to list
     GameObject* link;
 
     link = new GameObject(snakeProgram, autoSnake, scene);
     link->partOfSnake = true;
     links.push_back(std::make_shared<Game::GameObject>(*link));
-    //create links
-    auto cylMesh = Mesh::Cylinder();//{IglLoader::MeshFromFiles("cyl_igl","data/xcylinder.obj")};
+    auto cylMesh = Mesh::Cylinder();
     std::vector<std::shared_ptr<cg3d::Model>> cyls;
     cyls.push_back( Model::Create("cyl",cylMesh, snakeProgram));
     cyls[0]->Scale(scaleFactor,cg3d::Movable::Axis::X);
     
-    
-    // cyls[0]->SetCenter(Eigen::Vector3f(0,0,-0.8f*scaleFactor));
     link = new GameObject(snakeProgram, cyls[0], scene);
     link->partOfSnake = true;
-    // links.push_back(std::make_shared<Game::GameObject>(*link));
     links.push_back(std::make_shared<Game::GameObject>(*link));
     cyls[0]->SetCenter(Eigen::Vector3f(-linkLen,0,0));
-    // cyls[0]->RotateByDegree(90, Eigen::Vector3f(0,1,0));
     autoSnake->AddChild(cyls[0]);
-    // scene->root->AddChild(cyls[0]);
-    // add first link to game objects list
 
-    //TEMP
     for(int i = 1;i < numOfLinks; i++)
         { 
         //cyls
@@ -150,22 +140,12 @@ void Snake::InitSnake(){
         cyls[i]->Scale(scaleFactor,cg3d::Movable::Axis::X);   
         cyls[i]->Translate(1.6f*scaleFactor,cg3d::Movable::Axis::X);
         cyls[i]->SetCenter(Eigen::Vector3f(-linkLen,0,0));
-        // cyls[i]->RotateByDegree(90, Eigen::Vector3f(0,1,0));
         cyls[i-1]->AddChild(cyls[i]);   
-        // scene->root->AddChild(cyls[i]);   
-        //TEMP
         link = new GameObject(snakeProgram, cyls[i], scene);
         link->partOfSnake = true;
         links.push_back(std::make_shared<Game::GameObject>(*link));
-        // cyls[i]->AddChild(cyls[i-1]);   
-
-      
+     
     }
-    // cyls[0]->Translate({0,0,0.8f*scaleFactor});
-
-    // autoSnake->AddChild(cyls[numOfLinks-1]);
-
-    // cyls[0]->RotateByDegree(90, Eigen::Vector3f(0,1,0));
     InitGameValues();
     initJoints();
     

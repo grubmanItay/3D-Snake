@@ -27,19 +27,13 @@ namespace Game {
     }
 
     void Game::Pickup::RunAction() {
-        // hide
         model->isHidden = true;
-        //kill and timeout
+        model->Scale(Eigen::Vector3f({ 0.0001f, 0.0001f, 0.0001f }));
         permaGone = true;
         SetTimeOut();
-        // update score
         scene->gameManager->IncreaseScore(score);
-        // notify game manager
-        // log this
         Util::DebugPrint("Pickup " + name + " Destroyed");
-        scene->gameManager->spawnManager->PickupDestroyed(this);
-        //remove from objects
-        
+        scene->gameManager->spawnManager->PickupDestroyed(this);        
         scene->gameManager->soundManager->PlayPickupSound();
 
     }
@@ -63,11 +57,11 @@ namespace Game {
         if (AdvanceTime()) {
             // proceed to check collisions with other objects
             for (int i = 0; i < scene->gameManager->gameObjects.size(); i++) {
-                auto elem = scene->gameManager->gameObjects.at(i);
-                if (elem->name == this->name) //temp - do not collide with self
+                auto element = scene->gameManager->gameObjects.at(i);
+                if (element->name == this->name) //temp - do not collide with self
                     continue;
-                if (isActive && CollidingWith(elem))
-                    if (elem->partOfSnake) {
+                if (isActive && CollidingWith(element))
+                    if (element->partOfSnake) {
                         OnCollision();
                         return;
                     }

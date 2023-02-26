@@ -70,7 +70,6 @@ namespace Game{
             spawnManager->Spawnlevel(GetCurrlevel());
         }
         shouldSpawnNextlevel=false;
-        // signal level manager?
     }
 
     void GameManager::Restart()

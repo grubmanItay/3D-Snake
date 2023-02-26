@@ -422,8 +422,6 @@ void SnakeGame::Init(float fov, int width, int height, float _near, float _far)
     bricks->AddTexture(0, "textures/bricks.jpg", 2);
     auto collisionCube1Mesh {IglLoader::MeshFromFiles("collisioncube1mesh", "data/cube.off")};
     collisionCube1 = Model::Create("collisioncube1", collisionCube1Mesh, bricks);
-    collisionCube1->showFaces = false;
-    collisionCube1->showWireframe = true;
     collisionCube1->isHidden = true;
 
 	snake->GetModel()->AddChild(collisionCube1);   
@@ -433,7 +431,7 @@ void SnakeGame::AnimateUntilCollision(std::shared_ptr<Game::Snake> snakeModel){
 	if(!snakeModel->IsColliding()){
         Eigen::Vector3d moveVector;
         moveVector = Vector3d{-0.01,0,0};
-		snake->Skinning(moveVector);
+		//snake->Skinning(moveVector);
 	}
 }
 
@@ -485,22 +483,15 @@ std::shared_ptr<cg3d::Program> SnakeGame::InitSceneEtc(){
 }
 
 void SnakeGame::InitCameras(float fov, int width, int height, float _near, float _far){
-    // create the camera objects
-
     //First Person Camera
     camList.resize(camList.capacity());
     camList[0] = Camera::Create("camera0", fov, float(width) / float(height), _near, _far);
     camList[0]->Translate(-1, Axis::X);
     camList[0]->RotateByDegree(90, Axis::Y);
     snake->autoSnake->AddChild(camList[0]);
-    
-    // top down camera
-    for (int i = 1; i < camList.size(); i++) {
-        camList[i] = Camera::Create("camera" + std::to_string(i), fov, double(width) / height, _near, _far);
-        root->AddChild(camList[i]);
-    }
 
-    //move top down camera in to position and rotate it downwards
+    camList[1] = Camera::Create("camera" + std::to_string(1), fov, double(width) / height, _near, _far);
+    root->AddChild(camList[1]);
     camList[1]->Translate(50, Axis::Y);
     camList[1]->RotateByDegree(-90, Axis::X);
     this->camera = camList[1];
@@ -511,8 +502,7 @@ void SnakeGame::InitSnake(std::shared_ptr<cg3d::Program> program){
    //init snake object
     auto snakeMaterial{std::make_shared<Material>(SNAKE_NAME, program)};
     snakeMaterial->AddTexture(0, "textures/snake1.png", 2);
-    auto snakeMesh = Mesh::Cylinder(); // {ObjLoader::MeshFromObjFiles<std::string>("snakeMesh", "data/snake3.obj")};
-    //snakeMesh->data.push_back(IglLoader::MeshFromFiles("cyl_igl","data/xcylinder.obj")->data[0]);
+    auto snakeMesh = Mesh::Cylinder(); 
     snakeMesh->data.push_back(snakeMesh->data[0]);
     auto snakeModel{Model::Create(SNAKE_NAME, snakeMesh, snakeMaterial)};
 
@@ -523,15 +513,10 @@ void SnakeGame::InitSnake(std::shared_ptr<cg3d::Program> program){
     std::shared_ptr<AutoMorphingModel> autoSnake = AutoMorphingModel::Create(*snakeModel, morphFunc);
     autoSnake->showWireframe = false;
     autoSnake->RotateByDegree(90, Eigen::Vector3f(0,1,0));
-    // autoSnake->SetCenter(Eigen::Vector3f(-0.8f,0,0));
-    // autoSnake->SetCenter(Eigen::Vector3f(0.8f,0,0));
     root->AddChild(autoSnake);
     this->snake = Game::Snake::CreateSnake(snakeMaterial, autoSnake, 16, this);
-    //TEMP jsut to move snake a bit
     AnimateUntilCollision(this->snake);
-
     gameManager->snake = this->snake;
-    // root->AddChild(snake->autoSnake);
 }
 
 void SnakeGame::InitPtrs(){
@@ -551,13 +536,9 @@ void SnakeGame::Update(const Program& p, const Eigen::Matrix4f& proj, const Eige
     p.SetUniform1f("specular_exponent", 5.0f);
     p.SetUniform4f("light_position", 0.0, 15.0f, 0.0, 1.0f);
     if (animate) {
-        ticks+=1;
-        if(ticks % 5 == 0){
-            // AnimateUntilCollision(this->snake);
-            }
         for (int i = 0; i < interactables.size(); i++) {
-            auto elem = interactables.at(i);
-            elem->Update();       
+            auto element = interactables.at(i);
+            element->Update();
 
         }
     }
