@@ -488,7 +488,7 @@ void SnakeGame::InitCameras(float fov, int width, int height, float _near, float
     camList[0] = Camera::Create("camera0", fov, float(width) / float(height), _near, _far);
     camList[0]->Translate(-1, Axis::X);
     camList[0]->RotateByDegree(90, Axis::Y);
-    snake->autoSnake->AddChild(camList[0]);
+    snake->cyls[0]->AddChild(camList[0]);
 
     camList[1] = Camera::Create("camera" + std::to_string(1), fov, double(width) / height, _near, _far);
     root->AddChild(camList[1]);
@@ -513,7 +513,7 @@ void SnakeGame::InitSnake(std::shared_ptr<cg3d::Program> program){
     std::shared_ptr<AutoMorphingModel> autoSnake = AutoMorphingModel::Create(*snakeModel, morphFunc);
     autoSnake->showWireframe = false;
     autoSnake->RotateByDegree(90, Eigen::Vector3f(0,1,0));
-    root->AddChild(autoSnake);
+    //root->AddChild(autoSnake);
     this->snake = Game::Snake::CreateSnake(snakeMaterial, autoSnake, 16, this);
     AnimateUntilCollision(this->snake);
     gameManager->snake = this->snake;
@@ -597,7 +597,7 @@ void SnakeGame::KeyCallback(Viewport* _viewport, int x, int y, int key, int scan
     {
         Eigen::MatrixX3f system = camList[0]->GetRotation().transpose();
 
-		if (key == GLFW_KEY_SPACE){
+        if (key == GLFW_KEY_SPACE) {
             animate = !animate;
             if (!snake->isAlive) {
                 float HS = gameManager->GetHighScore();
@@ -609,41 +609,42 @@ void SnakeGame::KeyCallback(Viewport* _viewport, int x, int y, int key, int scan
             if (!gameManager->GetisStarted()) {
                 gameManager->GameStart();
             }
-            
-			StopMotion();
+
+            StopMotion();
         }
-		// if (key == GLFW_KEY_UP)
-		// 	snake->moveDir = Eigen::Vector3d(0, snake->GetMoveSpeed(), 0);
-		// if (key == GLFW_KEY_DOWN)
+        // if (key == GLFW_KEY_UP)
+        // 	snake->moveDir = Eigen::Vector3d(0, snake->GetMoveSpeed(), 0);
+        // if (key == GLFW_KEY_DOWN)
         //     snake->moveDir = Eigen::Vector3d(0, -1*snake->GetMoveSpeed(), 0);
-		
-		// if (key == GLFW_KEY_LEFT)
-		// 	snake->moveDir = Eigen::Vector3d(-1*snake->GetMoveSpeed(), 0, 0);
-		
-		// if (key == GLFW_KEY_RIGHT)
-		// 	snake->moveDir = Eigen::Vector3d(snake->GetMoveSpeed(), 0, 0);
-		if (key == GLFW_KEY_R){
-           RestartScene();
+
+        // if (key == GLFW_KEY_LEFT)
+        // 	snake->moveDir = Eigen::Vector3d(-1*snake->GetMoveSpeed(), 0, 0);
+
+        // if (key == GLFW_KEY_RIGHT)
+        // 	snake->moveDir = Eigen::Vector3d(snake->GetMoveSpeed(), 0, 0);
+        if (key == GLFW_KEY_R) {
+            RestartScene();
         }
-		
-        
-        
-        if (key == GLFW_KEY_UP) 
-            // snake->GetModel()->RotateByDegree(3, Axis::Z);
-            snake->GetModel()->RotateInSystem(system, 0.1f, Axis::X);
-			// UpdateYVelocity(true);
-		if (key == GLFW_KEY_DOWN) 
-            // snake->GetModel()->RotateByDegree(-3, Axis::Z);
-            snake->GetModel()->RotateInSystem(system, -0.1f, Axis::X);
-			// UpdateYVelocity(false);
-		if (key == GLFW_KEY_LEFT)
-            // snake->GetModel()->RotateByDegree(3, Axis::Y);
-            snake->GetModel()->RotateInSystem(system, 0.1f, Axis::Y);
-			// UpdateXVelocity(true);
-        if (key == GLFW_KEY_RIGHT)
-            // snake->GetModel()->RotateByDegree(-3, Axis::Y);
-            snake->GetModel()->RotateInSystem(system, -0.1f, Axis::Y);
-			// UpdateXVelocity(false);
+
+
+
+        if (key == GLFW_KEY_UP) {
+            snake->cyls[0]->Rotate(0.1f, Axis::Z);
+            snake->cyls[1]->Rotate(-0.1f, Axis::Z);
+        }
+        if (key == GLFW_KEY_DOWN) {
+            snake->cyls[0]->Rotate(-0.1f, Axis::Z);
+            snake->cyls[1]->Rotate(0.1f, Axis::Z);
+        }
+        if (key == GLFW_KEY_LEFT) {
+            snake->cyls[0]->Rotate(0.1f, Axis::Y);
+            snake->cyls[1]->Rotate(-0.1f, Axis::Y);
+        }
+        if (key == GLFW_KEY_RIGHT) {
+            snake->cyls[0]->Rotate(-0.1f, Axis::Y);
+            snake->cyls[1]->Rotate(0.1f, Axis::Y);
+        }
+
         // keys 1-9 are objects 1-9 (objects[0] - objects[8]), key 0 is object 10 (objects[9])
         if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
             if (int index; (index = (key - GLFW_KEY_1 + 10) % 10) < camList.size())
@@ -651,7 +652,6 @@ void SnakeGame::KeyCallback(Viewport* _viewport, int x, int y, int key, int scan
         }
     }
 
-    //SceneWithImGui::KeyCallback(nullptr, x, y, key, scancode, action, mods);
 }
 
 void SnakeGame::ViewportSizeCallback(Viewport* _viewport)

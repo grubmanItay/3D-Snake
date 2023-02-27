@@ -62,6 +62,7 @@ std::shared_ptr<AutoMorphingModel> Snake::GetModel(){
     return autoSnake;
  }
 
+
 std::shared_ptr<Snake> Snake::CreateSnake(std::shared_ptr<cg3d::Material> program, std::shared_ptr<cg3d::AutoMorphingModel> model, int numOfLinks, SnakeGame* scene){
     // return std::shared_ptr<Snake>{new Snake{program, model, numOfLinks}};
     return std::shared_ptr<Snake>{new Snake(program, model, numOfLinks, scene)};
@@ -123,20 +124,21 @@ void Snake::InitSnake(){
     link->partOfSnake = true;
     links.push_back(std::make_shared<Game::GameObject>(*link));
     auto cylMesh = Mesh::Cylinder();
-    std::vector<std::shared_ptr<cg3d::Model>> cyls;
-    cyls.push_back( Model::Create("cyl",cylMesh, snakeProgram));
+    
+    cyls.push_back( Model::Create("cyl 0",cylMesh, snakeProgram));
     cyls[0]->Scale(scaleFactor,cg3d::Movable::Axis::X);
     
     link = new GameObject(snakeProgram, cyls[0], scene);
     link->partOfSnake = true;
     links.push_back(std::make_shared<Game::GameObject>(*link));
     cyls[0]->SetCenter(Eigen::Vector3f(-linkLen,0,0));
-    autoSnake->AddChild(cyls[0]);
+    scene->root->AddChild(cyls[0]);
+    //autoSnake->AddChild(cyls[0]);
 
     for(int i = 1;i < numOfLinks; i++)
         { 
         //cyls
-        cyls.push_back(Model::Create("cyl", cylMesh, snakeProgram));
+        cyls.push_back(Model::Create("cyl " + std::to_string(i), cylMesh, snakeProgram));
         cyls[i]->Scale(scaleFactor,cg3d::Movable::Axis::X);   
         cyls[i]->Translate(1.6f*scaleFactor,cg3d::Movable::Axis::X);
         cyls[i]->SetCenter(Eigen::Vector3f(-linkLen,0,0));

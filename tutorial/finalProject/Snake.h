@@ -49,6 +49,7 @@ namespace Game{
             Eigen::Vector3d moveDir;
             float currHealth;
             void InitGameValues();
+            std::vector<std::shared_ptr<cg3d::Model>> cyls;
 
         private:
             

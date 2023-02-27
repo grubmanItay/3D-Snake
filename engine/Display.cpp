@@ -12,6 +12,7 @@
 #include "DebugHacks.h"
 
 
+
 namespace cg3d
 {
 
@@ -120,6 +121,11 @@ void Display::LaunchRendering(bool loop) const
     // Main rendering loop
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
     glfwSetWindowTitle(window, name.c_str());
+
+   //GLFWimage icons[1];
+   //icons[0].pixels = SOIL_load_image("texture\\Logo.ico", &icons[0].width, &icons[0].height, 0, SOIL_LOAD_RGBA);
+   //glfwSetWindowIcon(window, 1, icons);
+   //SOIL_free_image_data(icons[0].pixels);
 
     while (!glfwWindowShouldClose(window)) {
         double tic = igl::get_seconds();

@@ -127,6 +127,13 @@ Eigen::Vector3f Movable::GetTranslation() const
     return Eigen::Affine3f(aggregatedTransform).translation();
 }
 
+void Movable::Rotate(const Eigen::Quaternionf& quat)
+{
+    if (isStatic) return;
+    Tout.rotate(quat);
+    PropagateTransform();
+}
+
 void Movable::Rotate(const Eigen::Matrix3f& rot)
 {
     if (isStatic) return;

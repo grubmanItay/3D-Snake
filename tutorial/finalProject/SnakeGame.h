@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SceneWithImGui.h"
-#include "CamModel.h"
 
 #include <memory>
 #include <utility>
@@ -67,7 +66,6 @@
         void UpdateYVelocity(bool direction);
         void UpdateZVelocity(bool direction);
         void SetCamera(int index);
-        static std::shared_ptr<CamModel> CreateCameraWithModel(int width, int height, float fov, float near, float far, const std::shared_ptr<cg3d::Material>& material);
         static void DumpMeshData(const Eigen::IOFormat& simple, const cg3d::MeshData& data);
     };
 
