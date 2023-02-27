@@ -10,7 +10,7 @@
 #include "Renderer.h"
 #include "Utility.h"
 #include "DebugHacks.h"
-
+#include <stb/stb_image.h>
 
 
 namespace cg3d
@@ -122,10 +122,15 @@ void Display::LaunchRendering(bool loop) const
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
     glfwSetWindowTitle(window, name.c_str());
 
-   //GLFWimage icons[1];
-   //icons[0].pixels = SOIL_load_image("texture\\Logo.ico", &icons[0].width, &icons[0].height, 0, SOIL_LOAD_RGBA);
-   //glfwSetWindowIcon(window, 1, icons);
-   //SOIL_free_image_data(icons[0].pixels);
+    int width, height, channels;
+    unsigned char* pixels = stbi_load("textures\\icon.png", &width, &height, &channels, 4);
+
+    GLFWimage images[1];
+    images[0].width = width;
+    images[0].height = height;
+    images[0].pixels = pixels;
+
+    glfwSetWindowIcon(window, 1, images);
 
     while (!glfwWindowShouldClose(window)) {
         double tic = igl::get_seconds();
